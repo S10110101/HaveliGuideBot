@@ -215,7 +215,8 @@ Please follow the *Conventional Commits* spec and ensure the pre‑commit hooks
 
 ## 📜 License
 
-Distributed under the [MIT License](LICENSE).
+Created by ***Shivang Agrawal***
+Created on 21/06/2025
 
 ---
 
