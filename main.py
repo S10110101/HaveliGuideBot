@@ -13,12 +13,7 @@ import os
 import asyncio
 
 # Load Havelis from JSON
-try:
-    with open("Havelis.json", "r", encoding="utf-8") as f:
-        HAVELIS = json.load(f)["Havelis"]
-except Exception as e:
-    logger.critical(f"Error loading Havelis.json: {e}")
-    HAVELIS = []
+
 
 LANGUAGES = {
     "en": {"name": "English", "keywords": ["english", "eng", "en", "angrezi"]},
@@ -41,25 +36,6 @@ async def translate(text, target_lang):
         return text
 
 # TTS generation with edge-tts
-async def generate_audio(text, lang_code):
-    if not text.strip():
-        return None
-
-    voice_map = {
-        "en": "en-US-AriaNeural",
-        "hi": "hi-IN-SwaraNeural",
-        "ur": "ur-PK-AsadNeural"
-    }
-    voice = voice_map.get(lang_code, "en-US-AriaNeural")
-    filename = f"/tmp/{uuid.uuid4()}.mp3"
-
-    try:
-        communicate = Communicate(text, voice)
-        await communicate.save(filename)
-        return filename
-    except Exception as e:
-        logger.error(f"TTS error: {e}")
-        return None
 
 # /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -192,12 +168,6 @@ async def send_haveli_content(index, context, chat_id, lang):
     translated_name, translated_desc, location_prefix = await asyncio.gather(
         name_task, desc_task, location_task
     )
-
-    # Clean and escape markdown
-    def clean_text(text):
-        return re.sub(r'([_*\[\]()~`>#+\-=|{}.!])', r'\\\1', text)
-
-    escaped_name = clean_text(translated_name)
 
     # Send image with name only as caption
     try:
@@ -450,17 +420,12 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE) -> N
 
 # Main
 if __name__ == "__main__":
-    TOKEN = osgetenv("BOT_TOKEN")
+    TOKEN = ("BOT_TOKEN")
     if not TOKEN:
         logger.error("BOT_TOKEN environment variable not set!")
         exit(1)
 
     app = Application.builder().token(TOKEN).build()
-
-    # Register handlers
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(callback_handler))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
 
     # Register error handler
     app.add_error_handler(error_handler)
